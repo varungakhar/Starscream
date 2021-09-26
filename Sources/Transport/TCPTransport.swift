@@ -57,7 +57,7 @@ public class TCPTransport: Transport {
         self.isTLS = parts.isTLS
         let options = NWProtocolTCP.Options()
         options.connectionTimeout = Int(timeout.rounded(.up))
-
+        options.enableFastOpen = true
         let tlsOptions = isTLS ? NWProtocolTLS.Options() : nil
         if let tlsOpts = tlsOptions {
             sec_protocol_options_set_verify_block(tlsOpts.securityProtocolOptions, { (sec_protocol_metadata, sec_trust, sec_protocol_verify_complete) in
@@ -77,6 +77,7 @@ public class TCPTransport: Transport {
             }, queue)
         }
         let parameters = NWParameters(tls: tlsOptions, tcp: options)
+        parameters.multipathServiceType = .interactive
         let conn = NWConnection(host: NWEndpoint.Host.name(parts.host, nil), port: NWEndpoint.Port(rawValue: UInt16(parts.port))!, using: parameters)
         connection = conn
         start()
